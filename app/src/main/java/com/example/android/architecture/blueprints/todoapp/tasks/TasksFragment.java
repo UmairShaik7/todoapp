@@ -16,7 +16,10 @@
 
 package com.example.android.architecture.blueprints.todoapp.tasks;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
@@ -39,6 +42,7 @@ import com.example.android.architecture.blueprints.todoapp.databinding.TasksFrag
 import com.example.android.architecture.blueprints.todoapp.util.SnackbarUtils;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Display a grid of {@link Task}s. User can choose to view all, active or completed tasks.
@@ -48,8 +52,6 @@ public class TasksFragment extends Fragment {
     private TasksViewModel mTasksViewModel;
 
     private TasksFragBinding mTasksFragBinding;
-
-    private TasksAdapter mListAdapter;
 
     public TasksFragment() {
         // Requires empty public constructor
@@ -65,13 +67,14 @@ public class TasksFragment extends Fragment {
         mTasksViewModel.start();
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mTasksFragBinding = TasksFragBinding.inflate(inflater, container, false);
 
-        mTasksViewModel = TasksActivity.obtainViewModel(getActivity());
+        mTasksViewModel = TasksActivity.obtainViewModel(Objects.requireNonNull(getActivity()));
 
         mTasksFragBinding.setViewmodel(mTasksViewModel);
 
@@ -91,6 +94,8 @@ public class TasksFragment extends Fragment {
                 break;
             case R.id.menu_refresh:
                 mTasksViewModel.loadTasks(true);
+                break;
+            default:
                 break;
         }
         return true;
@@ -123,8 +128,10 @@ public class TasksFragment extends Fragment {
         });
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void showFilteringPopUpMenu() {
-        PopupMenu popup = new PopupMenu(getContext(), getActivity().findViewById(R.id.menu_filter));
+        PopupMenu popup = new PopupMenu(Objects.requireNonNull(getContext()),
+                Objects.requireNonNull(getActivity()).findViewById(R.id.menu_filter));
         popup.getMenuInflater().inflate(R.menu.filter_tasks, popup.getMenu());
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -148,9 +155,9 @@ public class TasksFragment extends Fragment {
         popup.show();
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void setupFab() {
-        FloatingActionButton fab =
-                (FloatingActionButton) getActivity().findViewById(R.id.fab_add_task);
+        FloatingActionButton fab = Objects.requireNonNull(getActivity()).findViewById(R.id.fab_add_task);
 
         fab.setImageResource(R.drawable.ic_add);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -162,20 +169,21 @@ public class TasksFragment extends Fragment {
     }
 
     private void setupListAdapter() {
-        ListView listView =  mTasksFragBinding.tasksList;
+        ListView listView = mTasksFragBinding.tasksList;
 
-        mListAdapter = new TasksAdapter(
+        TasksAdapter mListAdapter = new TasksAdapter(
                 new ArrayList<Task>(0),
                 mTasksViewModel
         );
         listView.setAdapter(mListAdapter);
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void setupRefreshLayout() {
-        ListView listView =  mTasksFragBinding.tasksList;
+        ListView listView = mTasksFragBinding.tasksList;
         final ScrollChildSwipeRefreshLayout swipeRefreshLayout = mTasksFragBinding.refreshLayout;
         swipeRefreshLayout.setColorSchemeColors(
-                ContextCompat.getColor(getActivity(), R.color.colorPrimary),
+                ContextCompat.getColor(Objects.requireNonNull(getActivity()), R.color.colorPrimary),
                 ContextCompat.getColor(getActivity(), R.color.colorAccent),
                 ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark)
         );
